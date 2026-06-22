@@ -123,6 +123,42 @@
             text-transform: uppercase;
         }
 
+        #zoom-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            overflow: auto;
+            cursor: zoom-out;
+        }
+
+        #zoom-overlay.active { display: flex; align-items: center; justify-content: center; }
+
+        #zoom-img {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+            cursor: default;
+            touch-action: pinch-zoom;
+        }
+
+        #zoom-close {
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            color: #aaa;
+            font-size: 1.4rem;
+            cursor: pointer;
+            z-index: 1001;
+            line-height: 1;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+        }
+
+        #zoom-close:hover { color: #fff; background: rgba(255,255,255,0.16); }
+
         @media (max-width: 639px) {
             body { padding: 6px; justify-content: flex-start; }
             header { padding: 12px 0 6px; }
@@ -162,7 +198,12 @@
         <button class="btn" id="btn-next">Siguiente →</button>
     </div>
 
-    <footer id="footer-hint">Haz clic en los bordes del libro para pasar páginas</footer>
+    <footer id="footer-hint">Haz clic en los bordes del libro para pasar páginas · Doble clic en la página para ampliar</footer>
+
+    <div id="zoom-overlay">
+        <span id="zoom-close">✕</span>
+        <img id="zoom-img" src="" alt="Página ampliada">
+    </div>
 
     <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
     <script>
@@ -219,6 +260,26 @@
         if (isMobile) {
             document.getElementById('footer-hint').textContent = 'Desliza la página o usa los botones para navegar';
         }
+
+        // Zoom al doble clic
+        const overlay  = document.getElementById('zoom-overlay');
+        const zoomImg  = document.getElementById('zoom-img');
+        const zoomClose = document.getElementById('zoom-close');
+
+        document.getElementById('book').addEventListener('dblclick', (e) => {
+            const img = e.target.closest('.page')?.querySelector('img');
+            if (!img) return;
+            zoomImg.src = img.src;
+            overlay.classList.add('active');
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.remove('active');
+        });
+        zoomClose.addEventListener('click', () => overlay.classList.remove('active'));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') overlay.classList.remove('active');
+        });
 
         document.addEventListener('contextmenu', (e) => e.preventDefault());
         document.addEventListener('dragstart',   (e) => e.preventDefault());
