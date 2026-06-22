@@ -122,6 +122,16 @@
             letter-spacing: 3px;
             text-transform: uppercase;
         }
+
+        @media (max-width: 639px) {
+            body { padding: 6px; justify-content: flex-start; }
+            header { padding: 12px 0 6px; }
+            header h1 { font-size: 0.75rem; letter-spacing: 3px; }
+            .controls { gap: 8px; padding: 12px 0 6px; }
+            .btn { padding: 12px 14px; font-size: 0.75rem; letter-spacing: 1px; }
+            #page-info { font-size: 0.7rem; min-width: 70px; }
+            footer { font-size: 0.6rem; letter-spacing: 2px; }
+        }
     </style>
 </head>
 <body>
@@ -152,26 +162,33 @@
         <button class="btn" id="btn-next">Siguiente →</button>
     </div>
 
-    <footer>Haz clic en los bordes del libro para pasar páginas</footer>
+    <footer id="footer-hint">Haz clic en los bordes del libro para pasar páginas</footer>
 
     <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
     <script>
         const totalPages = 11;
 
+        const vw = window.innerWidth;
+        const isMobile = vw < 640;
+        const pageW = isMobile
+            ? Math.floor(vw * 0.94)
+            : Math.min(560, Math.floor((vw - 80) / 2));
+        const pageH = Math.floor(pageW * 1.414);
+
         const pageFlip = new St.PageFlip(document.getElementById('book'), {
-            width: 560,
-            height: 792,
+            width: pageW,
+            height: pageH,
             size: 'fixed',
             showCover: true,
-            drawShadow: true,
-            flippingTime: 800,
-            usePortrait: false,
+            drawShadow: !isMobile,
+            flippingTime: isMobile ? 500 : 800,
+            usePortrait: isMobile,
             startZIndex: 0,
             autoSize: true,
             maxShadowOpacity: 0.6,
-            showPageCorners: true,
+            showPageCorners: !isMobile,
             disableFlipByClick: false,
-            mobileScrollSupport: true
+            mobileScrollSupport: false
         });
 
         pageFlip.loadFromHTML(document.querySelectorAll('.page'));
@@ -197,6 +214,10 @@
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
             if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   pageFlip.flipPrev();
         });
+
+        if (isMobile) {
+            document.getElementById('footer-hint').textContent = 'Desliza la página o usa los botones para navegar';
+        }
 
         document.addEventListener('contextmenu', (e) => e.preventDefault());
         document.addEventListener('dragstart',   (e) => e.preventDefault());
