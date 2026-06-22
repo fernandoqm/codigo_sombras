@@ -142,8 +142,8 @@
 
     <div id="magazine-wrap">
         <div id="book">
-            <div class="page"><img src="0.jpg"   alt="Portada"></div>
             <div class="page page-blank"></div>
+            <div class="page"><img src="0.jpg"   alt="Portada"></div>
             <div class="page"><img src="1.png"   alt="Página 1"></div>
             <div class="page"><img src="2.png"   alt="Página 2"></div>
             <div class="page"><img src="3.png"   alt="Página 3"></div>
@@ -179,10 +179,11 @@
             width: pageW,
             height: pageH,
             size: 'fixed',
-            showCover: true,
+            showCover: false,
             drawShadow: !isMobile,
             flippingTime: isMobile ? 500 : 800,
             usePortrait: isMobile,
+            startPage: isMobile ? 1 : 0,
             startZIndex: 0,
             autoSize: true,
             maxShadowOpacity: 0.6,
