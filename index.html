@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código de las Sombras</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: radial-gradient(ellipse at center, #1c1c2e 0%, #0a0a0f 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Georgia', serif;
+            color: #ccc;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 0 10px;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #b8b8d0;
+            font-weight: normal;
+        }
+
+        #magazine-wrap {
+            position: relative;
+            margin: 16px auto;
+            filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+        }
+
+        #book {
+            /* StPageFlip controla el tamaño */
+        }
+
+        .page {
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .page::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><text x='150' y='90' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45,150,90)' font-family='Georgia' font-size='15' fill='white' fill-opacity='0.07' letter-spacing='2'>%C2%A9 C%C3%B3digo de las Sombras</text></svg>");
+            background-repeat: repeat;
+            pointer-events: none;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .page-blank {
+            background: #0a0a0a;
+        }
+
+        .page-blank::after {
+            display: none;
+        }
+
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 0 8px;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.06);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 10px 26px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.14);
+            color: #eee;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.2;
+            cursor: default;
+        }
+
+        #page-info {
+            font-size: 0.75rem;
+            color: #555;
+            letter-spacing: 2px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        footer {
+            padding: 10px 0 20px;
+            font-size: 0.65rem;
+            color: #333;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Código de las Sombras</h1>
+    </header>
+
+    <div id="magazine-wrap">
+        <div id="book">
+            <div class="page"><img src="0.jpg"   alt="Portada"></div>
+            <div class="page page-blank"></div>
+            <div class="page"><img src="1.png"   alt="Página 1"></div>
+            <div class="page"><img src="2.png"   alt="Página 2"></div>
+            <div class="page"><img src="3.png"   alt="Página 3"></div>
+            <div class="page"><img src="4.png"   alt="Página 4"></div>
+            <div class="page"><img src="5.png"   alt="Página 5"></div>
+            <div class="page"><img src="6.jpg"   alt="Página 6"></div>
+            <div class="page"><img src="7.png"   alt="Página 7"></div>
+            <div class="page"><img src="8.png"   alt="Página 8"></div>
+            <div class="page"><img src="p-1.png" alt="Contraportada"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="btn-prev">← Anterior</button>
+        <span id="page-info">Pág. 1 / 10</span>
+        <button class="btn" id="btn-next">Siguiente →</button>
+    </div>
+
+    <footer>Haz clic en los bordes del libro para pasar páginas</footer>
+
+    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
+    <script>
+        const totalPages = 11;
+
+        const pageFlip = new St.PageFlip(document.getElementById('book'), {
+            width: 400,
+            height: 565,
+            size: 'fixed',
+            showCover: true,
+            drawShadow: true,
+            flippingTime: 800,
+            usePortrait: false,
+            startZIndex: 0,
+            autoSize: true,
+            maxShadowOpacity: 0.6,
+            showPageCorners: true,
+            disableFlipByClick: false,
+            mobileScrollSupport: true
+        });
+
+        pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+        const info    = document.getElementById('page-info');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function updateControls() {
+            const idx = pageFlip.getCurrentPageIndex();
+            info.textContent = `Pág. ${idx + 1} / ${totalPages}`;
+            btnPrev.disabled = idx === 0;
+            btnNext.disabled = idx >= totalPages - 1;
+        }
+
+        pageFlip.on('flip', updateControls);
+        pageFlip.on('init', updateControls);
+
+        btnPrev.addEventListener('click', () => pageFlip.flipPrev());
+        btnNext.addEventListener('click', () => pageFlip.flipNext());
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
+            if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   pageFlip.flipPrev();
+        });
+
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('dragstart',   (e) => e.preventDefault());
+    </script>
+
+</body>
+</html>
