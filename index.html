@@ -129,18 +129,20 @@
             inset: 0;
             background: rgba(0,0,0,0.95);
             z-index: 1000;
-            overflow: auto;
+            overflow: scroll;
+            -webkit-overflow-scrolling: touch;
             cursor: zoom-out;
         }
 
-        #zoom-overlay.active { display: flex; align-items: center; justify-content: center; }
+        #zoom-overlay.active { display: block; }
 
         #zoom-img {
-            max-width: 95vw;
-            max-height: 95vh;
-            object-fit: contain;
+            display: block;
+            width: 100%;
+            max-width: 1200px;
+            margin: 50px auto 20px;
+            touch-action: pan-x pan-y pinch-zoom;
             cursor: default;
-            touch-action: pinch-zoom;
         }
 
         #zoom-close {
