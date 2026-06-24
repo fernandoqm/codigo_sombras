@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Código de las Sombras</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: radial-gradient(ellipse at center, #1c1c2e 0%, #0a0a0f 100%);
-            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,7 +22,8 @@
 
         header {
             text-align: center;
-            padding: 24px 0 10px;
+            padding: 22px 0 8px;
+            width: 100%;
         }
 
         header h1 {
@@ -35,21 +36,18 @@
 
         #magazine-wrap {
             position: relative;
-            margin: 16px auto;
-            filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+            margin: 14px auto;
+            filter: drop-shadow(0 20px 60px rgba(0,0,0,0.85));
         }
 
-        #book {
-            /* StPageFlip controla el tamaño */
-        }
-
+        /* --- PÁGINAS BASE --- */
         .page {
             position: relative;
             background: #000;
             overflow: hidden;
         }
 
-        .page::after {
+        .page:not(.no-wm)::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -60,14 +58,6 @@
             z-index: 10;
         }
 
-        .page-blank {
-            background: #0a0a0a;
-        }
-
-        .page-blank::after {
-            display: none;
-        }
-
         .page img {
             width: 100%;
             height: 100%;
@@ -75,59 +65,476 @@
             display: block;
         }
 
+        .page-blank {
+            background: transparent !important;
+        }
+        .page-blank::after { display: none !important; }
+
+        /* =========================================
+           PÁGINAS HTML — contenido posicionado abs
+        ========================================= */
+        .page-html {
+            /* font-size se fija via JS según pageW */
+        }
+
+        /* ---- NUEVA PORTADA ---- */
+        .pg-cover {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5% 6%;
+        }
+
+        .pg-cover-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 70%, rgba(50, 10, 100, 0.55) 0%, transparent 65%),
+                radial-gradient(ellipse at 80% 10%, rgba(0, 80, 100, 0.25) 0%, transparent 45%),
+                radial-gradient(ellipse at 20% 90%, rgba(80, 0, 50, 0.2) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .pg-cover-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(140, 80, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(140, 80, 255, 0.04) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+
+        .pg-cover-scanlines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0, 0, 0, 0.12) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* kanji decorativos */
+        .pg-cover-kanji {
+            position: absolute;
+            font-family: serif;
+            writing-mode: vertical-rl;
+            letter-spacing: 0.1em;
+            opacity: 0.18;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .pg-cover-kanji.k1 { top: 8%; left: 4%;  font-size: 1.1em; color: #8b5cf6; }
+        .pg-cover-kanji.k2 { top: 8%; right: 4%; font-size: 1.1em; color: #22d3ee; }
+        .pg-cover-kanji.k3 { bottom: 18%; left: 5%; font-size: 0.9em; color: #f472b6; }
+        .pg-cover-kanji.k4 { bottom: 18%; right: 5%; font-size: 0.9em; color: #8b5cf6; }
+
+        .pg-cover-top {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 2;
+        }
+
+        .pg-cover-badge {
+            font-family: 'Courier New', monospace;
+            font-size: 0.55em;
+            letter-spacing: 2px;
+            color: rgba(140, 80, 255, 0.85);
+            text-transform: uppercase;
+            border: 1px solid rgba(140, 80, 255, 0.35);
+            padding: 2px 6px;
+        }
+
+        .pg-cover-issue {
+            font-family: 'Courier New', monospace;
+            font-size: 0.5em;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.28);
+        }
+
+        .pg-cover-center {
+            position: relative;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .pg-cover-eyebrow {
+            font-family: 'Courier New', monospace;
+            font-size: 0.5em;
+            letter-spacing: 4px;
+            color: rgba(34, 211, 238, 0.75);
+            text-transform: uppercase;
+            margin-bottom: 0.6em;
+        }
+
+        .pg-cover-title {
+            font-family: 'Georgia', serif;
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            line-height: 0.9;
+            text-shadow:
+                0 0 20px rgba(140, 80, 255, 0.8),
+                0 0 60px rgba(140, 80, 255, 0.3);
+        }
+
+        .pg-cover-de {
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            font-weight: normal;
+            color: rgba(200, 180, 255, 0.7);
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            margin: 0.15em 0;
+            display: block;
+        }
+
+        .pg-cover-sub {
+            font-family: 'Georgia', serif;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: rgba(230, 210, 255, 0.95);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            line-height: 1.1;
+            text-shadow: 0 0 30px rgba(140, 80, 255, 0.5);
+        }
+
+        .pg-cover-rule {
+            width: 55%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(140, 80, 255, 0.9), rgba(34, 211, 238, 0.6), transparent);
+            margin: 0.8em auto;
+        }
+
+        .pg-cover-ep {
+            font-family: 'Courier New', monospace;
+            font-size: 0.48em;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 1.5;
+        }
+
+        .pg-cover-bottom {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 2;
+        }
+
+        .pg-cover-free {
+            font-family: 'Courier New', monospace;
+            font-size: 0.42em;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 2px;
+        }
+
+        .pg-cover-tags {
+            font-family: 'Courier New', monospace;
+            font-size: 0.4em;
+            color: rgba(140, 80, 255, 0.5);
+            letter-spacing: 2px;
+            text-align: right;
+            text-transform: uppercase;
+            line-height: 1.6;
+        }
+
+        /* ---- PÁGINA EDITORIAL ---- */
+        .pg-editorial {
+            position: absolute;
+            inset: 0;
+            background: #05050d;
+            display: flex;
+            flex-direction: column;
+            padding: 6% 7%;
+            overflow: hidden;
+        }
+
+        .pg-editorial::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 7%;
+            right: 7%;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(140, 80, 255, 0.9), rgba(34, 211, 238, 0.5), rgba(140, 80, 255, 0));
+        }
+
+        .pg-ed-cat {
+            font-family: 'Courier New', monospace;
+            font-size: 0.42em;
+            letter-spacing: 4px;
+            color: rgba(34, 211, 238, 0.8);
+            text-transform: uppercase;
+            margin-bottom: 0.5em;
+        }
+
+        .pg-ed-title {
+            font-family: 'Georgia', serif;
+            font-size: 1.3em;
+            color: #ede8ff;
+            line-height: 1.15;
+            margin-bottom: 0.3em;
+        }
+
+        .pg-ed-rule {
+            width: 28px;
+            height: 2px;
+            background: rgba(140, 80, 255, 0.7);
+            margin-bottom: 0.8em;
+        }
+
+        .pg-ed-body {
+            font-family: 'Georgia', serif;
+            font-size: 0.58em;
+            line-height: 1.75;
+            color: rgba(200, 195, 220, 0.82);
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pg-ed-body p + p { margin-top: 0.8em; }
+
+        .pg-ed-pull {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: 0.78em;
+            color: rgba(140, 80, 255, 0.9);
+            border-left: 2px solid rgba(140, 80, 255, 0.45);
+            padding-left: 0.7em;
+            margin: 0.9em 0;
+            line-height: 1.45;
+        }
+
+        .pg-ed-footer {
+            margin-top: auto;
+            padding-top: 0.6em;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pg-ed-author {
+            font-family: 'Courier New', monospace;
+            font-size: 0.4em;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 2px;
+        }
+
+        .pg-ed-pgnum {
+            font-family: 'Courier New', monospace;
+            font-size: 0.4em;
+            color: rgba(255,255,255,0.18);
+        }
+
+        /* ---- PÁGINA PRÓXIMA ENTREGA ---- */
+        .pg-next {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6% 8%;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .pg-next-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 40%, rgba(80, 10, 40, 0.5) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 100%, rgba(30, 0, 60, 0.4) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .pg-next-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 50, 100, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 50, 100, 0.03) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+
+        .pg-next-label {
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 0.45em;
+            letter-spacing: 5px;
+            color: rgba(255, 80, 120, 0.8);
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 80, 120, 0.3);
+            padding: 3px 10px;
+            margin-bottom: 1.2em;
+            z-index: 2;
+        }
+
+        .pg-next-num {
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 0.5em;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 1.5em;
+            z-index: 2;
+        }
+
+        .pg-next-title {
+            position: relative;
+            font-family: 'Georgia', serif;
+            font-size: 1.5em;
+            color: #fff;
+            line-height: 1.2;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(255, 80, 120, 0.6);
+            margin-bottom: 0.6em;
+            z-index: 2;
+        }
+
+        .pg-next-rule {
+            position: relative;
+            width: 40%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 80, 120, 0.8), transparent);
+            margin: 0 auto 1em;
+            z-index: 2;
+        }
+
+        .pg-next-desc {
+            position: relative;
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: 0.55em;
+            color: rgba(220, 200, 210, 0.7);
+            line-height: 1.7;
+            max-width: 85%;
+            z-index: 2;
+        }
+
+        .pg-next-kanji {
+            position: absolute;
+            bottom: 6%;
+            font-family: serif;
+            font-size: 3em;
+            color: rgba(255, 80, 120, 0.08);
+            letter-spacing: 0.3em;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .pg-next-footer {
+            position: absolute;
+            bottom: 4%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.38em;
+            color: rgba(255,255,255,0.12);
+            letter-spacing: 3px;
+            z-index: 2;
+        }
+
+        /* =========================================
+           CONTROLES
+        ========================================= */
         .controls {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 18px 0 8px;
+            gap: 14px;
+            padding: 12px 0 6px;
         }
 
         .btn {
             background: rgba(255,255,255,0.06);
             color: #aaa;
             border: 1px solid rgba(255,255,255,0.15);
-            padding: 6px 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            border-radius: 3px;
-            font-size: 0.72rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            line-height: 1;
             transition: all 0.2s;
-            font-family: 'Georgia', serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .btn:hover:not(:disabled) {
-            background: rgba(255,255,255,0.14);
-            color: #eee;
-            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            border-color: rgba(255,255,255,0.35);
         }
 
-        .btn:disabled {
-            opacity: 0.2;
-            cursor: default;
+        .btn:active:not(:disabled) {
+            background: rgba(255,255,255,0.22);
+            transform: scale(0.93);
         }
+
+        .btn:disabled { opacity: 0.18; cursor: default; }
+
+        #btn-zoom {
+            background: rgba(255,255,255,0.06);
+            color: #888;
+            border: 1px solid rgba(255,255,255,0.12);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        #btn-zoom:hover { background: rgba(255,255,255,0.14); color: #ccc; }
+        #btn-zoom:active { background: rgba(255,255,255,0.2); transform: scale(0.93); }
 
         #page-info {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #555;
             letter-spacing: 2px;
-            min-width: 100px;
+            min-width: 80px;
             text-align: center;
         }
 
-        footer {
-            padding: 10px 0 20px;
-            font-size: 0.65rem;
-            color: #333;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
+        /* =========================================
+           ZOOM OVERLAY
+        ========================================= */
         #zoom-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.96);
             z-index: 1000;
             overflow: scroll;
             -webkit-overflow-scrolling: touch;
@@ -154,21 +561,150 @@
             cursor: pointer;
             z-index: 1001;
             line-height: 1;
-            padding: 6px 10px;
+            padding: 6px 12px;
             background: rgba(255,255,255,0.08);
             border-radius: 4px;
         }
 
         #zoom-close:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
+        /* Zoom de páginas HTML */
+        #zoom-html-outer {
+            display: none;
+            margin: 50px auto 20px;
+        }
+
+        #zoom-html-inner {
+            position: relative;
+            overflow: hidden;
+            transform-origin: top left;
+        }
+
+        /* =========================================
+           SWIPE HINT
+        ========================================= */
+        #swipe-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 0; right: 0;
+            z-index: 500;
+            text-align: center;
+            pointer-events: none;
+            animation: hint-fade 3.2s ease forwards;
+        }
+
+        #swipe-hint .hint-icon {
+            font-size: 2.2rem;
+            display: block;
+            animation: hint-slide 3.2s ease forwards;
+        }
+
+        #swipe-hint .hint-text {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            display: block;
+        }
+
+        #swipe-hint .hint-sub {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.65rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        @keyframes hint-fade {
+            0%   { opacity: 0; }
+            15%  { opacity: 1; }
+            75%  { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes hint-slide {
+            0%   { transform: translateX(40px); }
+            60%  { transform: translateX(-40px); }
+            100% { transform: translateX(-55px); }
+        }
+
+        footer {
+            padding: 10px 0 20px;
+            font-size: 0.65rem;
+            color: #333;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           MÓVIL
+        ========================================= */
         @media (max-width: 639px) {
-            body { padding: 6px; justify-content: flex-start; }
-            header { padding: 12px 0 6px; }
-            header h1 { font-size: 0.75rem; letter-spacing: 3px; }
-            .controls { gap: 8px; padding: 12px 0 6px; }
-            .btn { padding: 12px 14px; font-size: 0.75rem; letter-spacing: 1px; }
-            #page-info { font-size: 0.7rem; min-width: 70px; }
-            footer { font-size: 0.6rem; letter-spacing: 2px; }
+            body {
+                padding: 0;
+                justify-content: flex-start;
+                padding-bottom: 78px; /* espacio para controles fijos */
+                min-height: 100dvh;
+            }
+
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                padding: 11px 0 7px;
+                background: rgba(5, 5, 14, 0.96);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+
+            header h1 {
+                font-size: 0.7rem;
+                letter-spacing: 3px;
+            }
+
+            #magazine-wrap {
+                margin: 10px auto;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .controls {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 10px 20px;
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+                background: rgba(6, 6, 14, 0.97);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border-top: 1px solid rgba(255,255,255,0.07);
+                justify-content: center;
+                z-index: 100;
+                gap: 16px;
+            }
+
+            .btn {
+                width: 56px;
+                height: 56px;
+                font-size: 1.6rem;
+            }
+
+            #btn-zoom {
+                width: 46px;
+                height: 46px;
+                font-size: 1.2rem;
+            }
+
+            #page-info {
+                font-size: 0.7rem;
+                min-width: 84px;
+            }
+
+            footer { display: none; }
+
+            #swipe-hint { bottom: 88px; }
         }
     </style>
 </head>
@@ -180,8 +716,9 @@
 
     <div id="magazine-wrap">
         <div id="book">
-            <div class="page page-blank"></div>
-            <div class="page"><img src="0.jpg"   alt="Portada"></div>
+
+            <!-- páginas de imagen -->
+            <div class="page"><img src="0.png"   alt="Portada"></div>
             <div class="page"><img src="1.png"   alt="Página 1"></div>
             <div class="page"><img src="2.png"   alt="Página 2"></div>
             <div class="page"><img src="3.png"   alt="Página 3"></div>
@@ -190,47 +727,91 @@
             <div class="page"><img src="6.jpg"   alt="Página 6"></div>
             <div class="page"><img src="7.png"   alt="Página 7"></div>
             <div class="page"><img src="8.png"   alt="Página 8"></div>
-            <div class="page"><img src="p-1.png" alt="Contraportada"></div>
+            <div class="page"><img src="9.png"   alt="Página 9"></div>
+            <div class="page"><img src="10.png"  alt="Página 10"></div>
+            <div class="page"><img src="11.png"  alt="Página 11"></div>
+            <div class="page"><img src="12.png"  alt="Página 12"></div>
+            <div class="page"><img src="13.png"  alt="Página 13"></div>
+            <div class="page"><img src="14.png"  alt="Página 14"></div>
+            <!-- p-1.png eliminado -->
+
         </div>
     </div>
 
     <div class="controls">
-        <button class="btn" id="btn-prev">← Anterior</button>
-        <span id="page-info">Pág. 1 / 10</span>
-        <button class="btn" id="btn-next">Siguiente →</button>
+        <button class="btn" id="btn-prev" aria-label="Página anterior">❮</button>
+        <button id="btn-zoom" title="Ampliar página" aria-label="Ampliar">⊕</button>
+        <span id="page-info" aria-live="polite"></span>
+        <button class="btn" id="btn-next" aria-label="Página siguiente">❯</button>
     </div>
 
-    <footer id="footer-hint">Haz clic en los bordes del libro para pasar páginas · Doble clic en la página para ampliar</footer>
+    <footer id="footer-hint"></footer>
 
-    <div id="zoom-overlay">
-        <span id="zoom-close">✕</span>
+    <div id="swipe-hint" style="display:none;" aria-hidden="true">
+        <span class="hint-icon">👈</span>
+        <span class="hint-text">Desliza para pasar páginas</span>
+        <span class="hint-sub">Toca dos veces para ampliar</span>
+    </div>
+
+    <div id="zoom-overlay" role="dialog" aria-label="Página ampliada">
+        <span id="zoom-close" role="button" tabindex="0" aria-label="Cerrar">✕</span>
         <img id="zoom-img" src="" alt="Página ampliada">
+        <div id="zoom-html-outer">
+            <div id="zoom-html-inner"></div>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.js"></script>
+    <script src="page-flip.js"></script>
     <script>
-        const totalPages = 11;
-
         const vw = window.innerWidth;
+        const vh = window.innerHeight;
         const isMobile = vw < 640;
-        const pageW = isMobile
-            ? Math.floor(vw * 0.94)
-            : Math.min(560, Math.floor((vw - 80) / 2));
-        const pageH = Math.floor(pageW * 1.414);
+
+        // En escritorio: insertar página en blanco al inicio para que la portada quede a la derecha
+        if (!isMobile) {
+            const blank = document.createElement('div');
+            blank.className = 'page page-blank no-wm';
+            const book = document.getElementById('book');
+            book.insertBefore(blank, book.firstChild);
+        }
+
+        const totalPages = document.querySelectorAll('.page').length;
+
+        // Cálculo de tamaño: en móvil se ajusta a la pantalla disponible
+        let pageW, pageH;
+        if (isMobile) {
+            const headerH  = 46;
+            const ctrlH    = 78;
+            const margins  = 22;
+            const availH   = vh - headerH - ctrlH - margins;
+            const maxW     = Math.floor(vw * 0.96);
+            const wFromH   = Math.floor(availH / 1.414);
+            pageW = Math.min(maxW, wFromH);
+            pageH = Math.floor(pageW * 1.414);
+        } else {
+            pageW = Math.min(560, Math.floor((vw - 80) / 2));
+            pageH = Math.floor(pageW * 1.414);
+        }
+
+        // Escalar tipografía de las páginas HTML proporcionalmente al tamaño real
+        const baseFs = Math.round(pageW / 560 * 16);
+        document.querySelectorAll('.page-html').forEach(p => {
+            p.style.fontSize = baseFs + 'px';
+        });
 
         const pageFlip = new St.PageFlip(document.getElementById('book'), {
-            width: pageW,
-            height: pageH,
-            size: 'fixed',
-            showCover: false,
-            drawShadow: !isMobile,
-            flippingTime: isMobile ? 500 : 800,
-            usePortrait: isMobile,
-            startPage: isMobile ? 1 : 0,
-            startZIndex: 0,
-            autoSize: true,
-            maxShadowOpacity: 0.6,
-            showPageCorners: !isMobile,
+            width:              pageW,
+            height:             pageH,
+            size:               'fixed',
+            showCover:          false,   // sin pastas duras — todas las hojas son soft
+            drawShadow:         !isMobile,
+            flippingTime:       isMobile ? 450 : 800,
+            usePortrait:        isMobile,
+            startPage:          0,
+            startZIndex:        0,
+            autoSize:           true,
+            maxShadowOpacity:   0.5,
+            showPageCorners:    !isMobile,
             disableFlipByClick: false,
             mobileScrollSupport: false
         });
@@ -254,37 +835,105 @@
         btnPrev.addEventListener('click', () => pageFlip.flipPrev());
         btnNext.addEventListener('click', () => pageFlip.flipNext());
 
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', e => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
             if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   pageFlip.flipPrev();
         });
 
-        if (isMobile) {
-            document.getElementById('footer-hint').textContent = 'Desliza la página o usa los botones para navegar';
+        // Footer hint (escritorio)
+        document.getElementById('footer-hint').textContent = isMobile
+            ? ''
+            : 'Clic en los bordes para pasar · Doble clic para ampliar';
+
+        // Hint de deslizamiento (solo primera vez en móvil)
+        if (isMobile && !localStorage.getItem('hint-seen')) {
+            const hint = document.getElementById('swipe-hint');
+            hint.style.display = 'block';
+            setTimeout(() => {
+                hint.style.display = 'none';
+                localStorage.setItem('hint-seen', '1');
+            }, 3300);
+            document.getElementById('book').addEventListener('pointerdown', () => {
+                hint.style.display = 'none';
+                localStorage.setItem('hint-seen', '1');
+            }, { once: true });
         }
 
-        // Zoom al doble clic
-        const overlay  = document.getElementById('zoom-overlay');
-        const zoomImg  = document.getElementById('zoom-img');
-        const zoomClose = document.getElementById('zoom-close');
+        // ---- Zoom (imagen + páginas HTML) ----
+        const overlay      = document.getElementById('zoom-overlay');
+        const zoomImg      = document.getElementById('zoom-img');
+        const zoomHtmlOut  = document.getElementById('zoom-html-outer');
+        const zoomHtmlIn   = document.getElementById('zoom-html-inner');
+        const zoomClose    = document.getElementById('zoom-close');
 
-        document.getElementById('book').addEventListener('dblclick', (e) => {
-            const img = e.target.closest('.page')?.querySelector('img');
-            if (!img) return;
-            zoomImg.src = img.src;
+        function currentPageEl() {
+            const pages = document.querySelectorAll('.page');
+            return pages[pageFlip.getCurrentPageIndex()] || null;
+        }
+
+        function openZoom(pageEl) {
+            if (!pageEl) return;
+
             overlay.classList.add('active');
+            overlay.scrollTop  = 0;
+            overlay.scrollLeft = 0;
+            document.body.style.overflow = 'hidden';
+
+            const img = pageEl.querySelector('img');
+            if (img) {
+                // Página de imagen: mostrar imagen directamente
+                zoomImg.src = img.src;
+                zoomImg.style.display = 'block';
+                zoomHtmlOut.style.display = 'none';
+                zoomHtmlIn.innerHTML = '';
+            } else {
+                // Página HTML: clonar contenido y escalar 2×
+                // (usa pageW/pageH porque StPageFlip oculta las páginas no activas → offsetWidth = 0)
+                zoomImg.style.display = 'none';
+
+                const scale = 2;
+                zoomHtmlOut.style.display = 'block';
+                zoomHtmlOut.style.width   = (pageW * scale) + 'px';
+                zoomHtmlOut.style.height  = (pageH * scale) + 'px';
+
+                zoomHtmlIn.style.width           = pageW + 'px';
+                zoomHtmlIn.style.height          = pageH + 'px';
+                zoomHtmlIn.style.fontSize        = baseFs + 'px';
+                zoomHtmlIn.style.transform       = `scale(${scale})`;
+                zoomHtmlIn.style.transformOrigin = 'top left';
+                zoomHtmlIn.innerHTML             = pageEl.innerHTML;
+            }
+        }
+
+        function closeZoom() {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            zoomHtmlIn.innerHTML = '';
+        }
+
+        document.getElementById('book').addEventListener('dblclick', e => {
+            openZoom(e.target.closest('.page'));
         });
 
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) overlay.classList.remove('active');
-        });
-        zoomClose.addEventListener('click', () => overlay.classList.remove('active'));
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') overlay.classList.remove('active');
+        document.getElementById('btn-zoom').addEventListener('click', () => {
+            openZoom(currentPageEl());
         });
 
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-        document.addEventListener('dragstart',   (e) => e.preventDefault());
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeZoom();
+        });
+
+        zoomClose.addEventListener('click', closeZoom);
+        zoomClose.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') closeZoom();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeZoom();
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('dragstart',   e => e.preventDefault());
     </script>
 
 </body>
