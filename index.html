@@ -706,12 +706,161 @@
 
             #swipe-hint { bottom: 88px; }
         }
+
+        /* =========================================
+           INTRO OVERLAY
+        ========================================= */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+
+        #intro-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .intro-inner { text-align: center; padding: 2rem; }
+
+        .intro-title {
+            font-family: 'Georgia', serif;
+            font-size: clamp(1.3rem, 5vw, 2.4rem);
+            color: #fff;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-shadow: 0 0 50px rgba(140,80,255,0.7);
+            margin-bottom: .4rem;
+        }
+
+        .intro-sub {
+            font-family: 'Courier New', monospace;
+            font-size: .68rem;
+            letter-spacing: 5px;
+            color: rgba(140,80,255,0.65);
+            text-transform: uppercase;
+            margin-bottom: 2.2rem;
+        }
+
+        .intro-bar-track {
+            width: min(300px, 78vw);
+            height: 2px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .intro-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6d3aff, #22d3ee);
+            transition: width 2.1s cubic-bezier(.4,0,.2,1);
+        }
+
+        .intro-ep {
+            margin-top: 1.4rem;
+            font-family: 'Courier New', monospace;
+            font-size: .56rem;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,.18);
+            text-transform: uppercase;
+        }
+
+        .intro-skip {
+            margin-top: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: .55rem;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,.22);
+            text-transform: uppercase;
+            animation: pulse-hint 2s ease infinite;
+        }
+
+        @keyframes pulse-hint {
+            0%, 100% { opacity: .22; }
+            50% { opacity: .5; }
+        }
+
+        /* =========================================
+           BARRA DE PROGRESO
+        ========================================= */
+        header { position: relative; }
+
+        #read-progress-track {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        #read-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(109,58,255,.75), rgba(34,211,238,.6));
+            transition: width 0.4s ease;
+        }
+
+        /* =========================================
+           EFECTO GLITCH EN TÍTULO
+        ========================================= */
+        @keyframes title-glitch {
+            0%, 87%, 100% { text-shadow: none; transform: none; }
+            89% { text-shadow: -2px 0 rgba(140,80,255,.9), 2px 0 rgba(34,211,238,.8); transform: translateX(-1px); }
+            91% { text-shadow: 2px 0 rgba(140,80,255,.9), -2px 0 rgba(34,211,238,.8); transform: translateX(1px); }
+            93% { text-shadow: none; transform: none; }
+            95% { text-shadow: -1px 0 rgba(140,80,255,.4); transform: translateX(-1px); }
+            97% { text-shadow: none; transform: none; }
+        }
+
+        header h1.glitch-active {
+            animation: title-glitch 6s ease infinite;
+        }
+
+        /* =========================================
+           BOTÓN PANTALLA COMPLETA
+        ========================================= */
+        #btn-fullscreen {
+            background: rgba(255,255,255,.06);
+            color: #666;
+            border: 1px solid rgba(255,255,255,.1);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all .2s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        #btn-fullscreen:hover { background: rgba(255,255,255,.14); color: #ccc; }
+        #btn-fullscreen:active { transform: scale(.93); }
+        #btn-fullscreen.fs-active { color: rgba(140,80,255,.85); border-color: rgba(140,80,255,.35); }
+        #btn-fullscreen svg { pointer-events: none; }
+
+        .no-fullscreen #btn-fullscreen { display: none; }
+
+        @media (max-width: 639px) {
+            #btn-fullscreen { width: 42px; height: 42px; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Código de las Sombras</h1>
+        <h1 id="site-title"></h1>
+        <div id="read-progress-track"><div id="read-progress-fill"></div></div>
     </header>
 
     <div id="magazine-wrap">
@@ -743,6 +892,11 @@
         <button id="btn-zoom" title="Ampliar página" aria-label="Ampliar">⊕</button>
         <span id="page-info" aria-live="polite"></span>
         <button class="btn" id="btn-next" aria-label="Página siguiente">❯</button>
+        <button id="btn-fullscreen" title="Pantalla completa (F)" aria-label="Pantalla completa">
+            <svg id="fs-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
     </div>
 
     <footer id="footer-hint"></footer>
@@ -758,6 +912,18 @@
         <img id="zoom-img" src="" alt="Página ampliada">
         <div id="zoom-html-outer">
             <div id="zoom-html-inner"></div>
+        </div>
+    </div>
+
+    <div id="intro-overlay" aria-hidden="true">
+        <div class="intro-inner">
+            <div class="intro-title">CÓDIGO DE LAS SOMBRAS</div>
+            <div class="intro-sub">Novela gráfica digital</div>
+            <div class="intro-bar-track">
+                <div class="intro-bar-fill" id="intro-bar"></div>
+            </div>
+            <div class="intro-ep">Capítulo I · El Pacto del Programador</div>
+            <div class="intro-skip">Toca para continuar</div>
         </div>
     </div>
 
@@ -821,12 +987,16 @@
         const info    = document.getElementById('page-info');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
+        const progFill = document.getElementById('read-progress-fill');
 
         function updateControls() {
             const idx = pageFlip.getCurrentPageIndex();
             info.textContent = `Pág. ${idx + 1} / ${totalPages}`;
             btnPrev.disabled = idx === 0;
             btnNext.disabled = idx >= totalPages - 1;
+            // Barra de progreso
+            const pct = totalPages > 1 ? (idx / (totalPages - 1)) * 100 : 0;
+            progFill.style.width = pct + '%';
         }
 
         pageFlip.on('flip', updateControls);
@@ -838,12 +1008,13 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') pageFlip.flipNext();
             if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   pageFlip.flipPrev();
+            if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey) toggleFullscreen();
         });
 
         // Footer hint (escritorio)
         document.getElementById('footer-hint').textContent = isMobile
             ? ''
-            : 'Clic en los bordes para pasar · Doble clic para ampliar';
+            : 'Clic en los bordes para pasar · Doble clic para ampliar · F = pantalla completa';
 
         // Hint de deslizamiento (solo primera vez en móvil)
         if (isMobile && !localStorage.getItem('hint-seen')) {
@@ -934,6 +1105,79 @@
 
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('dragstart',   e => e.preventDefault());
+
+        // ---- Typewriter effect ----
+        function typeWriter(el, text, speed) {
+            el.textContent = '';
+            let i = 0;
+            (function tick() {
+                if (i < text.length) {
+                    el.textContent += text[i++];
+                    setTimeout(tick, speed);
+                } else {
+                    el.classList.add('glitch-active');
+                }
+            })();
+        }
+
+        // ---- Intro / pantalla de carga ----
+        const introOverlay = document.getElementById('intro-overlay');
+        const introBar     = document.getElementById('intro-bar');
+        const siteTitle    = document.getElementById('site-title');
+        let introTimer;
+
+        function dismissIntro() {
+            clearTimeout(introTimer);
+            introOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+                typeWriter(siteTitle, 'Código de las Sombras', 52);
+            }, 820);
+        }
+
+        // Animar barra de carga en el siguiente frame
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            introBar.style.width = '100%';
+        }));
+
+        introTimer = setTimeout(dismissIntro, 2700);
+        introOverlay.addEventListener('click', dismissIntro);
+
+        // ---- Pantalla completa ----
+        const btnFs = document.getElementById('btn-fullscreen');
+        const fsIcon = document.getElementById('fs-icon');
+
+        const fsEnterPath = 'M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3';
+        const fsExitPath  = 'M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3';
+
+        const fsAvailable = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+        if (!fsAvailable) document.body.classList.add('no-fullscreen');
+
+        function toggleFullscreen() {
+            if (!fsAvailable) return;
+            try {
+                const active = document.fullscreenElement || document.webkitFullscreenElement;
+                if (!active) {
+                    const el = document.documentElement;
+                    if (el.requestFullscreen) el.requestFullscreen();
+                    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                }
+            } catch(e) {}
+        }
+
+        function onFsChange() {
+            const active = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            btnFs.classList.toggle('fs-active', active);
+            fsIcon.querySelector('path').setAttribute('d', active ? fsExitPath : fsEnterPath);
+            btnFs.title = active ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)';
+        }
+
+        document.addEventListener('fullscreenchange', onFsChange);
+        document.addEventListener('webkitfullscreenchange', onFsChange);
+        btnFs.addEventListener('click', toggleFullscreen);
     </script>
 
 </body>
